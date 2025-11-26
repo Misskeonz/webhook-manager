@@ -56,12 +56,27 @@ class DeploymentService
     }
 
     /**
+     * Prepare command to run as specific user if configured.
+     */
+    protected function prepareCommandAsUser(array $command, ?string $deployUser = null): array
+    {
+        // If no deploy user specified, or same as current user, run as-is
+        if (!$deployUser || $deployUser === get_current_user()) {
+            return $command;
+        }
+
+        // Prepend sudo -u to run as different user
+        return array_merge(['sudo', '-u', $deployUser], $command);
+    }
+
+    /**
      * Execute the deployment process.
      */
     protected function executeDeployment(Webhook $webhook): string
     {
         $localPath = $webhook->local_path;
         $branch = $webhook->branch;
+        $deployUser = $webhook->deploy_user;
         $output = [];
 
         // Setup SSH key if available
@@ -75,19 +90,26 @@ class DeploymentService
         }
 
         try {
+            // Log deploy user if specified
+            if ($deployUser) {
+                $output[] = "Running deployment as user: {$deployUser}\n";
+            }
+
             // Check if directory exists
             if (!File::isDirectory($localPath)) {
                 // Clone repository
                 $output[] = "Cloning repository...";
-                $result = Process::env([
-                    'GIT_SSH_COMMAND' => $gitSshCommand,
-                ])->run([
+                $command = $this->prepareCommandAsUser([
                     'git',
                     'clone',
                     '-b', $branch,
                     $webhook->repository_url,
                     $localPath,
-                ]);
+                ], $deployUser);
+
+                $result = Process::env([
+                    'GIT_SSH_COMMAND' => $gitSshCommand,
+                ])->run($command);
 
                 $output[] = $result->output();
 
@@ -99,9 +121,13 @@ class DeploymentService
                 $output[] = "Pulling latest changes...";
 
                 // Fetch
+                $command = $this->prepareCommandAsUser([
+                    'git', 'fetch', 'origin', $branch
+                ], $deployUser);
+
                 $result = Process::path($localPath)
                     ->env(['GIT_SSH_COMMAND' => $gitSshCommand])
-                    ->run(['git', 'fetch', 'origin', $branch]);
+                    ->run($command);
 
                 $output[] = $result->output();
 
@@ -110,12 +136,14 @@ class DeploymentService
                 }
 
                 // Reset to origin
-                $result = Process::path($localPath)->run([
+                $command = $this->prepareCommandAsUser([
                     'git',
                     'reset',
                     '--hard',
                     "origin/{$branch}",
-                ]);
+                ], $deployUser);
+
+                $result = Process::path($localPath)->run($command);
 
                 $output[] = $result->output();
 
@@ -127,9 +155,13 @@ class DeploymentService
             // Run pre-deploy script
             if ($webhook->pre_deploy_script) {
                 $output[] = "\nRunning pre-deploy script...";
+                $command = $this->prepareCommandAsUser([
+                    'bash', '-c', $webhook->pre_deploy_script
+                ], $deployUser);
+
                 $result = Process::path($localPath)
                     ->timeout(300)
-                    ->run(['bash', '-c', $webhook->pre_deploy_script]);
+                    ->run($command);
 
                 $output[] = $result->output();
 
@@ -141,9 +173,13 @@ class DeploymentService
             // Run post-deploy script
             if ($webhook->post_deploy_script) {
                 $output[] = "\nRunning post-deploy script...";
+                $command = $this->prepareCommandAsUser([
+                    'bash', '-c', $webhook->post_deploy_script
+                ], $deployUser);
+
                 $result = Process::path($localPath)
                     ->timeout(300)
-                    ->run(['bash', '-c', $webhook->post_deploy_script]);
+                    ->run($command);
 
                 $output[] = $result->output();
 

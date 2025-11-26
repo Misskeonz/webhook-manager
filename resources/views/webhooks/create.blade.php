@@ -95,6 +95,18 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <div class="mb-3">
+                            <label for="deploy_user" class="form-label">Deploy User</label>
+                            <input type="text" class="form-control @error('deploy_user') is-invalid @enderror" id="deploy_user" name="deploy_user" value="{{ old('deploy_user', 'www-data') }}" placeholder="www-data">
+                            <div class="form-text">
+                                User that will execute deployment commands. Ensure this user has permissions for the deployment path.
+                                <br>Common users: <code>www-data</code>, <code>www</code>, <code>nginx</code>, <code>apache</code>, <code>http</code>
+                            </div>
+                            @error('deploy_user')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
                 </div>
 

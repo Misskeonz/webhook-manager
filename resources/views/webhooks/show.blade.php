@@ -70,6 +70,16 @@
                         <div class="col-md-9"><code>{{ $webhook->local_path }}</code></div>
                     </div>
 
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Deploy User:</strong></div>
+                        <div class="col-md-9">
+                            <code>{{ $webhook->deploy_user ?? 'www-data' }}</code>
+                            <small class="text-muted ms-2">
+                                <i class="bi bi-info-circle"></i> Commands executed as this user
+                            </small>
+                        </div>
+                    </div>
+
                     @if($webhook->last_deployed_at)
                         <div class="row mb-3">
                             <div class="col-md-3"><strong>Last Deployed:</strong></div>

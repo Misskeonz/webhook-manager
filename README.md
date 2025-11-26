@@ -10,6 +10,7 @@ A comprehensive Laravel-based webhook management system for automated Git deploy
 
 - 🎯 **Multi-Provider Support** - Works with GitHub and GitLab
 - 🔐 **Auto SSH Key Generation** - Unique SSH key pairs for each webhook
+- 👤 **Deploy User Control** - Execute deployments as specific system users
 - 📊 **Beautiful Dashboard** - Modern Bootstrap 5 UI with statistics
 - 🔄 **Automated Deployments** - Trigger deployments via webhooks or manually
 - 📝 **Deployment History** - Track all deployments with detailed logs
@@ -121,6 +122,7 @@ php artisan serve
    - **Repository URL:** SSH or HTTPS URL (e.g., `git@github.com:user/repo.git`)
    - **Branch:** Branch to deploy (e.g., `main`, `develop`)
    - **Local Path:** Absolute path for deployment (e.g., `/var/www/html/myproject`)
+   - **Deploy User:** User to execute deployment commands (e.g., `www-data`, `deployer`, `nginx`)
 
 4. **SSH Key Configuration:**
    - Check "Auto-generate SSH Key Pair" to create unique SSH keys
@@ -302,6 +304,32 @@ sudo chown -R www-data:www-data /var/www/html/myproject
 # Set proper permissions
 sudo chmod -R 755 /var/www/html/myproject
 ```
+
+### Deploy User Configuration
+
+**Feature:** Execute deployment commands as specific system user
+
+**Use Case:**
+- When deployment path is owned by a different user
+- For better security and permission management
+- To isolate deployment processes
+
+**Setup:**
+1. Configure sudo permissions (see `DEPLOYMENT_USER.md` for details)
+2. Set deploy user in webhook configuration
+3. Ensure user has proper path permissions
+
+**Example:**
+```bash
+# Configure sudoers
+sudo visudo -f /etc/sudoers.d/laravel-webhook
+
+# Add:
+www-data ALL=(ALL) NOPASSWD: /usr/bin/git
+www-data ALL=(ALL) NOPASSWD: /bin/bash
+```
+
+📖 **Full Documentation:** See [DEPLOYMENT_USER.md](DEPLOYMENT_USER.md) for comprehensive guide
 
 ## 🚀 Production Deployment
 

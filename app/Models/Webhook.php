@@ -23,6 +23,7 @@ class Webhook extends Model
         'repository_url',
         'branch',
         'local_path',
+        'deploy_user',
         'secret_token',
         'is_active',
         'pre_deploy_script',

@@ -33,12 +33,6 @@ Visit `http://localhost:8000` and you'll be redirected to login page.
 - Session management
 - CSRF protection
 
-### ✅ Registration System
-- User registration with validation
-- Password confirmation
-- Automatic login after registration
-- Email uniqueness check
-
 ### ✅ Protected Routes
 All webhook and deployment routes require authentication:
 - Dashboard
