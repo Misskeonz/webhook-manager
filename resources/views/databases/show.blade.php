@@ -5,14 +5,14 @@
 @section('page-description', 'Database details and information')
 
 @section('page-actions')
-    <div class="btn-group">
+    <div class="d-flex gap-2">
         <a href="{{ route('databases.change-password', $database) }}" class="btn btn-warning">
             <i class="bi bi-key me-1"></i> Change Password
         </a>
         <a href="{{ route('databases.edit', $database) }}" class="btn btn-secondary">
             <i class="bi bi-pencil me-1"></i> Edit
         </a>
-        <form action="{{ route('databases.destroy', $database) }}" method="POST" class="d-inline" onsubmit="return confirmDelete('Are you sure you want to delete this database? This action cannot be undone!')">
+        <form action="{{ route('databases.destroy', $database) }}" method="POST" onsubmit="return confirmDelete('Are you sure you want to delete this database? This action cannot be undone!')">
             @csrf
             @method('DELETE')
             <button type="submit" class="btn btn-danger">
