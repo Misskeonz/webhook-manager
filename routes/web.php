@@ -5,6 +5,7 @@ use App\Http\Controllers\DatabaseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeploymentController;
 use App\Http\Controllers\QueueController;
+use App\Http\Controllers\ServerHealthController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\WebhookHandlerController;
 use App\Http\Controllers\WebsiteController;
@@ -22,6 +23,9 @@ Route::post('logout', [LoginController::class, 'logout'])->name('logout')->middl
 Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Server Health
+    Route::get('server-health', [ServerHealthController::class, 'index'])->name('server-health');
 
     // Webhooks Management
     Route::resource('webhooks', WebhookController::class);

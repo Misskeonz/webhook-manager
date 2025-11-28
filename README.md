@@ -29,6 +29,14 @@ A comprehensive Laravel-based webhook management system for automated Git deploy
 - 🔧 **Easy Configuration** - Simple web interface for website management
 - ⚡ **Performance Optimized** - Static caching, gzip compression, optimized buffers
 
+### 📊 Server Health Monitoring
+- 💻 **System Metrics** - Real-time CPU, Memory, and Disk usage monitoring
+- 📈 **I/O Performance** - Track Disk I/O (read/write) and Network I/O (upload/download) rates
+- 📉 **Timeline Charts** - Visual trend analysis with Chart.js integration
+- ⏱️ **Configurable Intervals** - Customizable monitoring intervals and data retention
+- 🔄 **Background Collection** - Automated metrics collection via Laravel Scheduler
+- 🎯 **Cross-Platform** - Supports both macOS and Linux/Ubuntu servers
+
 ### 🎨 General Features
 - 🚦 **Queue System** - Asynchronous deployment and configuration processing
 - 📱 **Responsive Design** - Works on all devices
@@ -125,16 +133,34 @@ npm run build
 npm run dev
 ```
 
-### 5. Start Queue Worker
+### 5. Start Queue Worker and Scheduler
 
-**Important:** The queue worker must be running for deployments to work!
+**Important:** Both the queue worker and scheduler must be running!
 
 ```bash
-# Start queue worker
+# Start queue worker (for deployments)
 php artisan queue:work
+
+# Start scheduler (for system monitoring)
+php artisan schedule:work
 
 # Or use queue:listen for development
 php artisan queue:listen
+```
+
+**For Production:** Use a process manager like Supervisor:
+```ini
+[program:webhook-queue]
+command=php /path/to/artisan queue:work --sleep=3 --tries=3
+user=www-data
+autostart=true
+autorestart=true
+
+[program:webhook-scheduler]
+command=php /path/to/artisan schedule:work
+user=www-data
+autostart=true
+autorestart=true
 ```
 
 ### 6. Start Development Server
@@ -223,6 +249,65 @@ php artisan serve
    - Terminal output
    - Error messages (if failed)
    - Execution time
+
+### Server Health Monitoring
+
+The Server Health page provides real-time system performance metrics and historical trends.
+
+#### Accessing Server Health
+
+1. Navigate to **Server Health** from the sidebar menu
+2. View current system status:
+   - **CPU Usage** - Current processor utilization percentage
+   - **Memory Usage** - RAM usage with used/total display
+   - **Disk Usage** - Storage utilization percentage
+
+#### Understanding the Charts
+
+**System Performance Chart:**
+- Displays CPU, Memory, and Disk usage trends over time
+- Default shows last 6 hours (configurable)
+- Hover over chart for detailed values at specific times
+
+**I/O Performance Chart:**
+- **Disk I/O** - Read and write speeds in MB/s
+- **Network I/O** - Download and upload rates in MB/s
+- Real-time calculation based on metric intervals
+- Helps identify performance bottlenecks
+
+#### Configuration
+
+Configure monitoring settings in `.env`:
+
+```bash
+# Enable/disable monitoring
+MONITORING_ENABLED=true
+
+# Collection interval in minutes (how often to collect metrics)
+MONITORING_INTERVAL=2
+
+# Data retention in hours (how long to keep historical data)
+MONITORING_RETENTION_HOURS=24
+
+# Chart display hours (how many hours to show in charts)
+MONITORING_CHART_HOURS=6
+```
+
+#### Requirements
+
+**Scheduler must be running** for metrics collection:
+
+```bash
+# Development
+php artisan schedule:work
+
+# Production (use Supervisor or systemd)
+[program:webhook-scheduler]
+command=php /path/to/artisan schedule:work
+user=www-data
+autostart=true
+autorestart=true
+```
 
 ### Managing Websites (Virtual Hosts)
 
@@ -317,29 +402,34 @@ No need to change webhook scripts after first deployment!
 app/
 ├── Http/Controllers/
 │   ├── DashboardController.php      # Dashboard & statistics
+│   ├── ServerHealthController.php   # Server health monitoring
 │   ├── WebhookController.php        # Webhook CRUD operations
 │   ├── WebsiteController.php        # Website/vhost management
 │   ├── DeploymentController.php     # Deployment management
 │   └── WebhookHandlerController.php # Webhook API handler
 ├── Jobs/
 │   ├── ProcessDeployment.php        # Async deployment job
-│   └── DeployNginxConfig.php        # Async Nginx/PHP-FPM deployment
+│   ├── DeployNginxConfig.php        # Async Nginx/PHP-FPM deployment
+│   └── SystemMonitorJob.php         # System metrics collection job
 ├── Models/
 │   ├── Webhook.php                  # Webhook model
 │   ├── Website.php                  # Website/vhost model
 │   ├── SshKey.php                   # SSH key model
-│   └── Deployment.php               # Deployment model
+│   ├── Deployment.php               # Deployment model
+│   └── SystemMetric.php             # System metrics model
 └── Services/
     ├── SshKeyService.php            # SSH key generation
     ├── DeploymentService.php        # Git deployment logic
     ├── NginxService.php             # Nginx config generation
     ├── PhpFpmService.php            # PHP-FPM pool management
-    └── Pm2Service.php               # PM2 ecosystem management
+    ├── Pm2Service.php               # PM2 ecosystem management
+    └── SystemMonitorService.php     # System metrics collection
 
 resources/views/
 ├── layouts/
 │   └── app.blade.php                # Main Bootstrap 5 layout
 ├── dashboard.blade.php              # Dashboard view
+├── server-health.blade.php          # Server health monitoring view
 ├── websites/                        # Website views
 │   ├── index.blade.php
 │   ├── create.blade.php
@@ -353,6 +443,9 @@ resources/views/
 └── deployments/                     # Deployment views
     ├── index.blade.php
     └── show.blade.php
+
+config/
+└── monitoring.php                   # System monitoring configuration
 
 storage/server/                      # Local development configs
 ├── nginx/

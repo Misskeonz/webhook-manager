@@ -12,6 +12,8 @@ class PhpFpmService
 {
     protected string $poolDirectory;
     protected bool $isLocal;
+    protected string $webServerUser;
+    protected string $webServerGroup;
 
     public function __construct()
     {
@@ -24,6 +26,50 @@ class PhpFpmService
         } else {
             // Production path
             $this->poolDirectory = '/etc/php/{version}/fpm/pool.d';
+        }
+
+        // Detect web server user and group
+        $this->detectWebServerUser();
+    }
+
+    /**
+     * Detect the web server user and group based on environment.
+     */
+    protected function detectWebServerUser(): void
+    {
+        // Try to get from environment variable
+        $envUser = env('WEB_SERVER_USER');
+        $envGroup = env('WEB_SERVER_GROUP');
+
+        if ($envUser && $envGroup) {
+            $this->webServerUser = $envUser;
+            $this->webServerGroup = $envGroup;
+            return;
+        }
+
+        // Auto-detect based on OS
+        if ($this->isLocal) {
+            // Local development - use current user
+            $this->webServerUser = get_current_user();
+            $this->webServerGroup = $this->webServerUser;
+        } else {
+            // Production - try to detect
+            // macOS/BSD uses _www or www, Linux uses www-data
+            $possibleUsers = ['www-data', 'www', '_www', 'nginx', 'apache'];
+            
+            foreach ($possibleUsers as $user) {
+                // Check if user exists
+                $result = Process::run(['id', '-u', $user]);
+                if ($result->successful()) {
+                    $this->webServerUser = $user;
+                    $this->webServerGroup = $user;
+                    return;
+                }
+            }
+
+            // Fallback to www-data
+            $this->webServerUser = 'www-data';
+            $this->webServerGroup = 'www-data';
         }
     }
 
@@ -101,12 +147,12 @@ class PhpFpmService
 
         return <<<POOL
 [{$poolName}]
-user = www-data
-group = www-data
+user = {$this->webServerUser}
+group = {$this->webServerGroup}
 
 listen = {$socketPath}
-listen.owner = www-data
-listen.group = www-data
+listen.owner = {$this->webServerUser}
+listen.group = {$this->webServerGroup}
 listen.mode = 0660
 
 ; Process manager settings

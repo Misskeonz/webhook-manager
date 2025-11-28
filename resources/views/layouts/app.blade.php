@@ -35,6 +35,9 @@
             <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
                 <i class="bi bi-speedometer2 me-2"></i> Dashboard
             </a>
+            <a class="nav-link {{ request()->routeIs('server-health') ? 'active' : '' }}" href="{{ route('server-health') }}">
+                <i class="bi bi-heart-pulse me-2"></i> Server Health
+            </a>
             <a class="nav-link {{ request()->routeIs('websites.*') ? 'active' : '' }}" href="{{ route('websites.index') }}">
                 <i class="bi bi-globe me-2"></i> Websites
             </a>

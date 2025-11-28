@@ -75,7 +75,7 @@
     <div class="row">
         <!-- Webhooks List -->
         <div class="col-lg-6 mb-3 mb-lg-0">
-            <div class="card">
+            <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>Configured Webhooks</span>
                     <a href="{{ route('webhooks.create') }}" class="btn btn-primary btn-sm">
@@ -141,7 +141,7 @@
 
         <!-- Recent Deployments -->
         <div class="col-lg-6 mb-3 mb-lg-0">
-            <div class="card">
+            <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>Recent Deployments</span>
                     <a href="{{ route('deployments.index') }}" class="btn btn-outline-primary btn-sm">

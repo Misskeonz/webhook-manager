@@ -1,5 +1,7 @@
 <?php
 
+use App\Jobs\SystemMonitorJob;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,6 +16,16 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'webhook/*',
         ]);
+    })
+    ->withSchedule(function (Schedule $schedule): void {
+        // System monitoring - configurable interval
+        if (config('monitoring.enabled', true)) {
+            $interval = config('monitoring.interval_minutes', 2);
+            $schedule->job(new SystemMonitorJob())
+                ->cron("*/{$interval} * * * *")
+                ->name('system-monitor')
+                ->withoutOverlapping();
+        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

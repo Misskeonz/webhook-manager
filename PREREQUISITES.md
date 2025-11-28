@@ -431,6 +431,32 @@ Restart PHP-FPM services after changes:
 sudo systemctl restart php7.4-fpm php8.0-fpm php8.1-fpm php8.2-fpm php8.3-fpm
 ```
 
+#### Web Server User Configuration
+
+The application auto-detects the web server user based on your environment:
+
+- **Linux**: Uses `www-data` (default)
+- **macOS/BSD**: Uses `www`, `_www`, or current user
+- **Custom**: Set via environment variables
+
+To override auto-detection, add to your `.env` file:
+
+```bash
+# Custom web server user (optional)
+WEB_SERVER_USER=www
+WEB_SERVER_GROUP=www
+```
+
+**Common web server users by OS**:
+
+| OS | User | Group |
+|---|---|---|
+| Ubuntu/Debian | `www-data` | `www-data` |
+| macOS | `_www` or `www` | `_www` or `www` |
+| CentOS/RHEL | `nginx` or `apache` | `nginx` or `apache` |
+
+**Note**: After changing the web server user, redeploy all websites to regenerate PHP-FPM pool configurations with the correct user.
+
 ### Sudoers Configuration
 
 **CRITICAL**: The web server user needs sudo privileges to manage Nginx configurations.
@@ -530,6 +556,30 @@ sudo useradd -m -s /bin/bash phpapp
 - The web server (`www-data`) uses `sudo -u <deploy_user>` to run git commands
 - Deployment users need read/write access to their project directories
 - This provides security isolation between different projects
+
+**For Node.js Projects with PM2**:
+
+Deployment users need direct PM2 access (without sudo). Install PM2 globally or ensure it's in the user's PATH:
+
+```bash
+# Option 1: Install PM2 globally (recommended)
+sudo npm install -g pm2
+
+# Option 2: If deploy user needs to run PM2 commands with sudo
+# Add to /etc/sudoers.d/git-webhook-manager:
+deploy ALL=(ALL) NOPASSWD: /usr/bin/pm2 *
+nodeapp ALL=(ALL) NOPASSWD: /usr/bin/pm2 *
+# Replace with your actual deploy user names
+```
+
+**Post-Deploy Script Examples**:
+
+```bash
+# No sudo needed for PM2
+npm install --production
+pm2 restart app-name --update-env || pm2 start /etc/pm2/ecosystem.app-name.config.js
+pm2 save
+```
 
 ### Directory Permissions
 
