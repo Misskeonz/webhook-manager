@@ -192,6 +192,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Configure Chart.js to use Montserrat font
+    Chart.defaults.font.family = "'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif";
+    
     const metrics = @json($systemMetrics);
     
     // Prepare data for charts
