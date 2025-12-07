@@ -7,9 +7,27 @@ use App\Services\SshKeyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 
 class WebhookController extends Controller
 {
+    public function handle(Request $request, $id, $token)
+    {
+        // 1. You should implement the signature verification logic here using $token 
+        //    and the X-Hub-Signature-256 header.
+        //    For now, we'll just log to confirm the route is working.
+
+        Log::info('Webhook received successfully!', [
+            'id' => $id,
+            'token' => $token,
+            'event' => $request->header('X-GitHub-Event'), // e.g., 'ping' or 'push'
+        ]);
+        
+        // 2. Add your deployment logic here (e.g., dispatch a deployment Job)
+
+        // Must return a 200 OK response to GitHub
+        return response('Webhook Handled', 200);
+    }
     public function __construct(
         protected SshKeyService $sshKeyService
     ) {
