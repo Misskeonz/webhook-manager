@@ -144,6 +144,18 @@
             border-bottom: 1px solid #e5e7eb;
             margin-bottom: 2rem;
         }
+        .website-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: #6b7280;
+            flex-shrink: 0;
+        }
     </style>
 
     <!-- Tabs -->
@@ -178,6 +190,9 @@
                         <div class="d-flex align-items-start gap-3" style="flex: 1;">
                             <i class="bi bi-chevron-right chevron-icon" id="chevron-{{ $website->id }}" 
                                style="font-size: 1.25rem; color: #9ca3af; margin-top: 0.25rem;"></i>
+                            <div class="website-icon">
+                                <i class="bi bi-globe"></i>
+                            </div>
                             <div class="flex-grow-1">
                                 <div class="website-name">
                                     <span class="status-dot {{ $website->is_active ? 'active' : 'inactive' }}"></span>
