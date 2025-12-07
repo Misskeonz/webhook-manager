@@ -33,16 +33,57 @@ A comprehensive Laravel-based webhook management system for automated Git deploy
 ### 📊 Server Health Monitoring
 - 💻 **System Metrics** - Real-time CPU, Memory, and Disk usage monitoring
 - 📈 **I/O Performance** - Track Disk I/O (read/write) and Network I/O (upload/download) rates
-- 📉 **Timeline Charts** - Visual trend analysis with Chart.js integration
+- 📉 **Timeline Charts** - Visual trend analysis with Chart.js integration (1h, 3h, 6h, 12h filters)
 - ⏱️ **Configurable Intervals** - Customizable monitoring intervals and data retention
 - 🔄 **Background Collection** - Automated metrics collection via Laravel Scheduler
 - 🎯 **Cross-Platform** - Supports both macOS and Linux/Ubuntu servers
 
+### 🚨 Alert & Monitoring System
+- 📊 **Metric Monitoring** - CPU, Memory, Disk usage, and Service status tracking
+- 🔔 **Multi-Channel Notifications** - Email and Slack webhook integration
+- ⚙️ **Custom Thresholds** - Define alert conditions with flexible operators (>, <, ==, !=)
+- ⏰ **Duration-Based Alerts** - Prevent false alarms with time-based triggers
+- 📝 **Alert History** - Track, view, and resolve triggered alerts
+- 🎯 **Severity Levels** - Info, Warning, and Critical alert classification
+- 🔄 **Auto-Check** - Runs every minute via Laravel Scheduler
+
+### 🛡️ Firewall Management (UFW)
+- 🔥 **UFW Control** - Enable/disable firewall from web interface
+- 📋 **Rule Management** - Add, edit, and delete firewall rules
+- 🎯 **Port-Based Rules** - Allow/deny specific ports (e.g., 80, 443, 22)
+- 🌐 **IP Filtering** - Restrict access by IP address or CIDR range
+- ⬆️⬇️ **Direction Control** - Configure inbound, outbound, or both
+- 🔄 **Quick Actions** - Reset to defaults, reload rules
+- 🖥️ **Localhost Only** - Direct UFW management for self-hosted setups
+
+### ⏰ Cron Jobs Management
+- 📅 **Crontab GUI** - Web interface for managing cron jobs
+- ⚙️ **Schedule Builder** - Easy configuration with predefined intervals
+- 🔄 **Sync to System** - Direct integration with system crontab
+- ✅ **Enable/Disable** - Toggle jobs without deletion
+- 📝 **Command History** - Track all scheduled commands
+- 🖥️ **User-Specific** - Manages www-data user crontab for web tasks
+
+### 📄 Log Viewer
+- 📋 **Multi-Log Support** - View Laravel, Nginx access/error, and system logs
+- 🔍 **Search & Filter** - Quick search through log entries
+- 📊 **Real-time Display** - Shows last 500 lines with latest-first ordering
+- 🗑️ **Log Management** - Clear Laravel logs with one click
+- 🖥️ **Terminal-Style UI** - Dark theme for easy log reading
+
+### ☁️ CloudFlare Integration
+- 🌐 **DNS Management** - Automatic DNS record creation for websites
+- 🔄 **Auto-Sync** - One-click DNS synchronization
+- ✅ **Status Tracking** - Monitor DNS record status (active/pending/failed)
+- 🔐 **Secure API** - Uses CloudFlare API tokens for authentication
+- 🎯 **A Record Support** - Automatic A record creation pointing to server IP
+
 ### 🎨 General Features
 - 🚦 **Queue System** - Asynchronous deployment and configuration processing
-- 📱 **Responsive Design** - Works on all devices
+- 📱 **Responsive Design** - Modern card-based UI, works on all devices
 - 🎨 **PSR-Compliant Code** - Clean, maintainable codebase
 - 🔐 **Secure by Design** - Proper permission management and validation
+- 🌓 **Beautiful UI** - Clean, modern Bootstrap 5 interface with collapsible cards
 
 ## 📋 Requirements
 
@@ -673,36 +714,53 @@ sudo certbot certificates
 app/
 ├── Http/Controllers/
 │   ├── DashboardController.php      # Dashboard & statistics
-│   ├── ServerHealthController.php   # Server health monitoring
+│   ├── ServerHealthController.php   # Server health monitoring (with time filters)
 │   ├── WebhookController.php        # Webhook CRUD operations
 │   ├── WebsiteController.php        # Website/vhost management
 │   ├── DeploymentController.php     # Deployment management
-│   └── WebhookHandlerController.php # Webhook API handler
+│   ├── WebhookHandlerController.php # Webhook API handler
+│   ├── AlertController.php          # Alert rules & history management
+│   ├── FirewallController.php       # UFW firewall management
+│   ├── CronJobController.php        # Cron jobs management
+│   ├── LogViewerController.php      # Log viewer
+│   ├── CloudflareController.php     # CloudFlare DNS management
+│   ├── DatabaseController.php       # Database management
+│   └── QueueController.php          # Queue monitoring
 ├── Jobs/
 │   ├── ProcessDeployment.php        # Async deployment job
 │   ├── DeployNginxConfig.php        # Async Nginx/PHP-FPM deployment
-│   └── SystemMonitorJob.php         # System metrics collection job
+│   ├── SystemMonitorJob.php         # System metrics collection job
+│   ├── CheckAlertsJob.php           # Alert checking & notification job
+│   ├── CheckSslCertificates.php     # SSL certificate monitoring
+│   └── RenewSslCertificates.php     # SSL auto-renewal job
 ├── Models/
 │   ├── Webhook.php                  # Webhook model
 │   ├── Website.php                  # Website/vhost model
 │   ├── SshKey.php                   # SSH key model
 │   ├── Deployment.php               # Deployment model
-│   └── SystemMetric.php             # System metrics model
+│   ├── SystemMetric.php             # System metrics model
+│   ├── AlertRule.php                # Alert rules model
+│   ├── Alert.php                    # Triggered alerts model
+│   ├── FirewallRule.php             # Firewall rules model
+│   └── CronJob.php                  # Cron jobs model
 └── Services/
     ├── SshKeyService.php            # SSH key generation
     ├── DeploymentService.php        # Git deployment logic
     ├── NginxService.php             # Nginx config generation
     ├── PhpFpmService.php            # PHP-FPM pool management
     ├── Pm2Service.php               # PM2 ecosystem management
-    └── SystemMonitorService.php     # System metrics collection
+    ├── SystemMonitorService.php     # System metrics collection
+    ├── FirewallService.php          # UFW firewall commands
+    ├── CloudflareService.php        # CloudFlare API integration
+    └── RemoteWebsiteService.php     # Remote website deployment
 
 resources/views/
 ├── layouts/
-│   └── app.blade.php                # Main Bootstrap 5 layout
-├── dashboard.blade.php              # Dashboard view
-├── server-health.blade.php          # Server health monitoring view
-├── websites/                        # Website views
-│   ├── index.blade.php
+│   └── app.blade.php                # Main Bootstrap 5 layout with sidebar nav
+├── dashboard.blade.php              # Dashboard with system overview
+├── server-health.blade.php          # Server health monitoring (with 1h/3h/6h/12h filters)
+├── websites/                        # Website management (modern card UI)
+│   ├── index.blade.php              # Card-based website list with collapsible details
 │   ├── create.blade.php
 │   ├── edit.blade.php
 │   └── show.blade.php
@@ -711,9 +769,25 @@ resources/views/
 │   ├── create.blade.php
 │   ├── edit.blade.php
 │   └── show.blade.php
-└── deployments/                     # Deployment views
-    ├── index.blade.php
-    └── show.blade.php
+├── deployments/                     # Deployment views
+│   ├── index.blade.php
+│   └── show.blade.php
+├── alerts/                          # Alert management views
+│   ├── index.blade.php
+│   ├── create.blade.php
+│   └── edit.blade.php
+├── firewall/                        # Firewall management views
+│   └── index.blade.php
+├── cron-jobs/                       # Cron jobs management views
+│   ├── index.blade.php
+│   ├── create.blade.php
+│   └── edit.blade.php
+├── logs/                            # Log viewer views
+│   └── index.blade.php
+├── databases/                       # Database management views
+│   └── index.blade.php
+└── queues/                          # Queue monitoring views
+    └── index.blade.php
 
 config/
 └── monitoring.php                   # System monitoring configuration
