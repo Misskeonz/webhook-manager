@@ -1,11 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Create Alert Rule')
+@section('title', 'Create Alert Rule - Git Webhook Manager')
+@section('page-title', 'Alerts & Monitoring')
+@section('page-description', 'Create a new alert rule')
 
 @section('content')
-<div class="mb-4">
-    <h2>Create Alert Rule</h2>
-</div>
 
 <div class="card">
     <div class="card-body">

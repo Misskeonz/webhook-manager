@@ -1,32 +1,32 @@
 @extends('layouts.app')
 
-@section('title', 'Firewall Management')
+@section('title', 'Firewall - Git Webhook Manager')
+@section('page-title', 'Firewall')
+@section('page-description', 'Manage UFW firewall rules and network security')
+
+@section('page-actions')
+    @if($ufwStatus['enabled'] ?? false)
+        <form action="{{ route('firewall.disable') }}" method="POST" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-warning">
+                <i class="bi bi-shield-slash"></i> Disable UFW
+            </button>
+        </form>
+    @else
+        <form action="{{ route('firewall.enable') }}" method="POST" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-shield-check"></i> Enable UFW
+            </button>
+        </form>
+    @endif
+    
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRuleModal">
+        <i class="bi bi-plus-circle"></i> Add Rule
+    </button>
+@endsection
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Firewall Management</h2>
-    <div>
-        @if($ufwStatus['enabled'] ?? false)
-            <form action="{{ route('firewall.disable') }}" method="POST" class="d-inline">
-                @csrf
-                <button type="submit" class="btn btn-warning">
-                    <i class="bi bi-shield-slash"></i> Disable UFW
-                </button>
-            </form>
-        @else
-            <form action="{{ route('firewall.enable') }}" method="POST" class="d-inline">
-                @csrf
-                <button type="submit" class="btn btn-success">
-                    <i class="bi bi-shield-check"></i> Enable UFW
-                </button>
-            </form>
-        @endif
-        
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRuleModal">
-            <i class="bi bi-plus-circle"></i> Add Rule
-        </button>
-    </div>
-</div>
 
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show">

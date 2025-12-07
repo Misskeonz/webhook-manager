@@ -1,11 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Log Viewer')
+@section('title', 'Logs - Git Webhook Manager')
+@section('page-title', 'Log Viewer')
+@section('page-description', 'View and search application and system logs')
 
 @section('content')
-<div class="mb-4">
-    <h2>Log Viewer</h2>
-</div>
 
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show">

@@ -1,14 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Cron Jobs')
+@section('title', 'Cron Jobs - Git Webhook Manager')
+@section('page-title', 'Cron Jobs')
+@section('page-description', 'Schedule and manage automated tasks')
 
-@section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Cron Jobs</h2>
+@section('page-actions')
     <a href="{{ route('cron-jobs.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-circle"></i> Create Cron Job
     </a>
-</div>
+@endsection
+
+@section('content')
 
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show">

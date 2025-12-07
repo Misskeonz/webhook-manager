@@ -1,11 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Cron Job')
+@section('title', 'Edit Cron Job - Git Webhook Manager')
+@section('page-title', 'Cron Jobs')
+@section('page-description', 'Edit scheduled task')
 
 @section('content')
-<div class="mb-4">
-    <h2>Edit Cron Job</h2>
-</div>
 
 <div class="card">
     <div class="card-body">

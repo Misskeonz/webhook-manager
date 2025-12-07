@@ -1,14 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Alerts & Monitoring')
+@section('title', 'Alerts - Git Webhook Manager')
+@section('page-title', 'Alerts & Monitoring')
+@section('page-description', 'Monitor system metrics and get notified')
 
-@section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Alerts & Monitoring</h2>
+@section('page-actions')
     <a href="{{ route('alerts.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-circle"></i> Create Alert Rule
     </a>
-</div>
+@endsection
+
+@section('content')
 
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show">
