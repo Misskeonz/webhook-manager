@@ -34,7 +34,7 @@ Route::middleware('auth')->group(function () {
         ->name('webhooks.generate-ssh-key');
     Route::post('webhooks/{webhook}/toggle', [WebhookController::class, 'toggle'])
         ->name('webhooks.toggle');
-    Route::post('/webhook/1/TYAzioQrXxZzUYTDLtUIh7fSHfUxQ6JWIiXOey7Z4AWyfE9srVAyNic4UuvTwvMG', [WebhookController::class, 'handle']);
+    Route::post('https://nonreversed-interreligious-mariann.ngrok-free.dev/webhook/github', [WebhookController::class, 'handle']);
 
     // Deployments
     Route::get('deployments', [DeploymentController::class, 'index'])->name('deployments.index');
