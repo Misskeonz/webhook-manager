@@ -8,25 +8,43 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response; // Used for returning 403
 
 class WebhookController extends Controller
 {
-    public function handle(Request $request, $id, $token)
+    public function handle(Request $request)
     {
-        // 1. You should implement the signature verification logic here using $token 
-        //    and the X-Hub-Signature-256 header.
-        //    For now, we'll just log to confirm the route is working.
+        $secret = env('GITHUB_WEBHOOK_SECRET');
+        $signature = $request->header('X-Hub-Signature-256');
 
-        Log::info('Webhook received successfully!', [
-            'id' => $id,
-            'token' => $token,
-            'event' => $request->header('X-GitHub-Event'), // e.g., 'ping' or 'push'
-        ]);
+        if (!$signature) {
+            Log::warning('Webhook received with no signature header.');
+            return response('No signature provided.', Response::HTTP_FORBIDDEN); // 403
+        }
+
+        // 1. Calculate the hash of the payload using your secret
+        $expectedSignature = 'sha256=' . hash_hmac('sha256', $request->getContent(), $secret);
+
+        // 2. Compare the calculated hash with the GitHub provided signature
+        if (! hash_equals($expectedSignature, $signature)) {
+            Log::error('Webhook signature verification failed.', ['signature' => $signature]);
+            return response('Invalid signature.', Response::HTTP_FORBIDDEN); // 403
+        }
         
-        // 2. Add your deployment logic here (e.g., dispatch a deployment Job)
+        // --- SECURITY PASSED. NOW PROCESS THE EVENT ---
 
-        // Must return a 200 OK response to GitHub
-        return response('Webhook Handled', 200);
+        // 3. Handle only 'push' events on the 'main' branch
+        if ($request->header('X-GitHub-Event') !== 'push') {
+            return response('Event ignored: ' . $request->header('X-GitHub-Event'), 200);
+        }
+
+        // 4. Dispatch the deployment job
+        Log::info('GitHub Push Event verified and dispatching deployment job.');
+        
+        // This is where you dispatch your Job to run the shell script
+        // Example: dispatch(new DeployFlaskWebsite()); 
+
+        return response('Deployment triggered.', 202); // 202 Accepted, job dispatched
     }
     public function __construct(
         protected SshKeyService $sshKeyService
